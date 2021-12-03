@@ -1,0 +1,41 @@
+{
+  "name": "yamadashy/laravel-blade-minify-directive",
+  "description": "@minify directive to partially compress HTML.",
+  "keywords": [
+    "laravel",
+    "-blade",
+    "directive",
+    "minify"
+  ],
+  "homepage": "https://github.com/yamadashy/laravel-blade-minify-directive",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kazuki Yamada",
+      "email": "koukun0120@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "8.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Yamadashy\\TryFiber\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Yamadashy\\TryFiber\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "analyze": "vendor/bin/phpstan analyze"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
