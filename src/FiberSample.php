@@ -2,13 +2,21 @@
 
 namespace Yamadashy\TryFiber;
 
+require_once __DIR__.'/../vendor/autoload.php';
+
 class FiberSample
 {
 
-    public static function run()
+    private const FILE_NAMES = [
+        'fileA.txt',
+        'fileB.txt',
+        'fileC.txt'
+    ];
+
+    public static function sample()
     {
         $fiber = new \Fiber(function (): void {
-            $value = \Fiber::suspend('fiber');
+            $value = \Fiber::suspend('fiber!!!');
             echo "resume: ", $value, "\n";
         });
 
@@ -19,6 +27,60 @@ class FiberSample
         $fiber->resume('test');
     }
 
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public static function loadFilesSerial()
+    {
+        $fibers = [];
+
+        foreach (self::FILE_NAMES as $fileName){
+            $filePath = __DIR__ . '/../resources/'.$fileName;
+
+            $fibers[] = FileFiber::getFileContent($filePath);
+        }
+
+        foreach ($fibers as $fiber) {
+            [$filePath, $fileContent] = FiberUtil::wait($fiber, function($filePath) {
+//                echo "suspending: ".$filePath."\n";
+            });
+            echo "loaded: $filePath\n";
+        }
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public static function loadFilesParallel()
+    {
+        $fibers = [];
+
+        foreach (self::FILE_NAMES as $fileName){
+            $filePath = __DIR__ . '/../resources/'.$fileName;
+
+            $fibers[] = FileFiber::getFileContent($filePath);
+        }
+
+        FiberUtil::waitAll($fibers, function($result) {
+            [$filePath, $fileContent] = $result;
+            echo "loaded: $filePath\n";
+        }, function($filePath) {
+//            echo "suspending: ".$filePath."\n";
+        });
+    }
+
 }
 
-FiberSample::run();
+echo "--- sample ---\n";
+FiberSample::sample();
+
+
+echo "\n";
+echo "--- loadFilesSerial ---\n";
+FiberSample::loadFilesSerial();
+
+echo "\n";
+echo "--- loadFilesParallel ---\n";
+FiberSample::loadFilesParallel();
