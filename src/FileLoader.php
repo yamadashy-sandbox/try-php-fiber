@@ -2,22 +2,24 @@
 
 namespace Yamadashy\TryFiber;
 
-class FileFiber
+use Fiber;
+
+class FileLoader
 {
     /**
      * @param string $filePath
-     * @return \Fiber
+     * @return Fiber
      */
-    public static function getFileContent(string $filePath): \Fiber
+    public static function getFileContent(string $filePath): Fiber
     {
-        return new \Fiber(function() use ($filePath) {
+        return new Fiber(function() use ($filePath) {
             $fileContent = '';
             $fp = fopen($filePath, 'rb');
-            \Fiber::suspend();
+            Fiber::suspend();
 
             while (!feof($fp)) {
                 $chunk = 1024;
-                \Fiber::suspend($filePath);
+                Fiber::suspend($filePath);
                 $fileContent .= fread($fp, $chunk);
             }
 

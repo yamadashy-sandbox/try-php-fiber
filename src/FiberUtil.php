@@ -2,17 +2,19 @@
 
 namespace Yamadashy\TryFiber;
 
+use Fiber;
+use Throwable;
+
 class FiberUtil
 {
 
-    public static array $activeAwaits = [];
-
     /**
-     * @param \Fiber $childFiber
+     * @param Fiber $fiber
+     * @param callable|null $onResume
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public static function wait(\Fiber $fiber, $onResume = null): mixed
+    public static function wait(Fiber $fiber, callable $onResume = null): mixed
     {
         $fiber->start();
 
@@ -32,13 +34,13 @@ class FiberUtil
     }
 
     /**
-     * @param \Fiber[] $fibers
+     * @param Fiber[] $fibers
      * @param callable $onReturn
-     * @param callable $onResume
-     * @return mixed
-     * @throws \Throwable
+     * @param callable|null $onResume
+     * @return void
+     * @throws Throwable
      */
-    public static function waitAll(array $fibers, $onReturn, $onResume = null): mixed
+    public static function waitAll(array $fibers, $onReturn, callable $onResume = null): void
     {
         $activeFibers = [];
 
@@ -60,37 +62,6 @@ class FiberUtil
                 }
             }
         }
-
-        return '';
     }
 
-    /**
-     * @return void
-     */
-    public static function awaitCurrents(): void
-    {
-
-        while (count(self::$activeAwaits) > 0) {
-            $toRemove = [];
-            foreach (self::$activeAwaits as $index => $pair) {
-                $parentFiber = $pair[0];
-                $childFiber = $pair[1];
-
-                if ($parentFiber->isSuspended() && $parentFiber->isTerminated() === false) {
-                    // Resume the parent fiber
-                    $parentFiber->resume();
-                } elseif ($parentFiber->isTerminated()) {
-                    // Register this fiber index to be removed from the activeAwaits
-                    $toRemove[] = $index;
-                }
-            }
-
-            foreach ($toRemove as $indexToRemove) {
-                unset(self::$activeAwaits[$indexToRemove]);
-            }
-
-            // Re-index the array
-            self::$activeAwaits = array_values(self::$activeAwaits);
-        }
-    }
 }
